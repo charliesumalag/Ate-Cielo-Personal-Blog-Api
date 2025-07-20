@@ -15,10 +15,12 @@ return new class extends Migration
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('category');
             $table->string('title');
-            $table->string('image')->nullable();
             $table->string('slug')->unique();
-            $table->text('content');
+            $table->text('description');
+            $table->text('tags');
+            $table->string('image_path')->nullable();
             $table->boolean('published')->default(true);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();

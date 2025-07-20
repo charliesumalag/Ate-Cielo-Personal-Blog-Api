@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Routing\Controllers\Middleware;
@@ -26,18 +27,28 @@ class PostController extends Controller implements HasMiddleware
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'category' => 'required|string',
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:posts,slug',
-            'content' => 'required|string',
+            'description' => 'required|string',
+            'tags' => 'nullable|string',
             'image' => 'nullable|max:2048',
             'published' => 'boolean',
         ]);
-        $validated['published_at'] = $validated['published'] ? now() : null;
+        $validated['published_at'] = !empty($validated['published']) ? now() : null;
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('uploads', 'public');
+            $validated['image_path'] = $imagePath;
+        }
         // $post = Post::create($validated);
         $post = $request->user()->posts()->create($validated);
 
-        return response()->json($post, 201);
+        return response()->json([
+            'post' => $post,
+            'message' => 'Posted'
+        ], 201);
     }
 
 

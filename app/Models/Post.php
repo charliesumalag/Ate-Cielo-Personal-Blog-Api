@@ -8,12 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Post extends Model
 {
     protected $fillable = [
+        'category',
         'title',
         'slug',
-        'content',
-        'image',
+        'description',
+        'tags',
+        'image_path',
         'published',
-        'published_at',
+        'published_at'
     ];
     public function user(): BelongsTo
     {

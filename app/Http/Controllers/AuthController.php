@@ -54,8 +54,19 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
+
         return [
             'message' => 'You are logged out'
         ];
+    }
+
+
+    public function dashboard(Request $request)
+    {
+        return response()->json([
+            'message' => 'Welcome to the admin dashboard!',
+            'user' => $request->user(),
+            // Add stats/data here if needed
+        ]);
     }
 }

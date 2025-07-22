@@ -42,7 +42,7 @@ class PostController extends Controller implements HasMiddleware
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('uploads', 'public');
+            $imagePath = $request->file('image')->store('uploads/blog', 'public');
             $validated['image_path'] = $imagePath;
         }
         // $post = Post::create($validated);

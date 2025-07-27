@@ -58,29 +58,42 @@ class PostController extends Controller implements HasMiddleware
 
     public function show(Post $post)
     {
-        $post->load('user');
-
-        return response()->json([
-            'post' => $post,
-        ]);
+        return ['post' => $post, 'user' => $post->user];
     }
 
     public function update(Request $request, Post $post)
     {
-        Gate::authorize('modify', $post);
+        // Gate::authorize('modify', $post);
+
         $validated = $request->validate([
+            'category' => 'required|string',
             'title' => 'required|string|max:255',
-            'slug' => 'required|string|max:255|unique:posts,slug',
-            'content' => 'required|string',
-            'image' => 'nullable|max:2048',
+            'slug' => 'required|string|max:255|unique:posts,slug,' . $post->id, // <== Ignore current post
+            'description' => 'required|string',
+            'tags' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
             'published' => 'boolean',
         ]);
+
         $validated['published_at'] = $validated['published'] ? now() : null;
-        $post = Post::findOrFail($post);
-        $post->update($validated);    //
-        return response()->json($post->fresh(), 200); // 👈 return updated post
+
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = $request->file('image')->store('uploads/blog', 'public');
+        }
+
+        $post->update($validated);
+
+        return response()->json([
+            'post' => $post->fresh(),
+            'message' => 'Post updated successfully.',
+        ]);
     }
 
+    public function getPostsByUser($userId)
+    {
+        $posts = \App\Models\Post::where('user_id', $userId)->latest()->get();
+        return response()->json($posts);
+    }
 
     public function destroy(Post $post)
     {
